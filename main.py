@@ -7,7 +7,7 @@ app = App(__name__)
 app.pipeline = [SessionFSManager()]
 
 # Load database connection
-import services
+from services import *
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
