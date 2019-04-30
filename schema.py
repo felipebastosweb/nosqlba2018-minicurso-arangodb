@@ -11,3 +11,10 @@ client = ArangoClient(
 )
 
 db = client.database('nosqlba2018')
+
+class User:
+    def __init__(self, db):
+        self.db = db
+    def login(self, username, password):
+        pass
+
