@@ -58,15 +58,16 @@ class Account:
             return False
         account = db.collection(self.collection).get({'_key': _key})
     # Insert User
-    def signup(self, username, password):
-        if db.collection(self.collection).has(doc):
+    def signup(self, _username, _password, _email):
+        if db.collection(self.collection).get({'username': _username}):
             return False
-        doc = dict(username = username, password = password, created_at = datetime.now().isoformat())
-        return db.insert_document(doc)
+        doc = dict(username = _username, password = _password, email = _email, created_at = datetime.now().isoformat())
+        return db.collection(self.collection).insert(doc)
     # Update User
     def update(self, doc, **kwargs):
         password = kwargs.get('password')
         doc['password'] = password if password
+        doc['email'] = email if email
         doc['updated_at'] = datetime.now().isoformat()
         return db.update_document(doc)
     # Arquive User
@@ -76,10 +77,52 @@ class Account:
         doc['arquived_at'] = datetime.now().isoformat()
         return db.update_document(doc)
     # Delete User
-    def delete(self):
+    def delete(self, doc):
         if not db.collection(self.collection).has(doc):
             return False
        return db.delete_document(doc)
+
+
+class Event:
+    collection = 'events'
+    def __init__(self, db):
+        self.db = db
+    # Find Events
+    def find(self, title):
+        query = """
+        FOR doc in events
+            FILTER doc.title LIKE %@title%
+                OR doc.description LIKE %@title%
+            return doc
+        """
+        cursor = db.aql.execute(query, bind_vars={'title': title})
+        docs = [doc for doc in cursor.batch()]
+        return docs
+    # Insert Event
+    def insert(self, _author, _title, _description):
+        if db.collection(self.collection).get({'author': author, 'title': title}):
+            return False
+        doc = dict(author = _author, title = _title, description = _description, created_at = datetime.now().isoformat())
+        return db.collection(self.collection).insert(doc)
+    # Update Event
+    def update(self, doc, **kwargs):
+        doc['author'] = kwargs.get('author') if kwargs.get('author')
+        doc['title'] = kwargs.get('title') if kwargs.get('title')
+        doc['description'] = kwargs.get('description') if kwargs.get('description')
+        doc['updated_at'] = datetime.now().isoformat()
+        return db.update_document(doc)
+    # Arquive User
+    def arquive(self, doc):
+        password = kwargs.get('password')
+        doc['arquived'] = True
+        doc['arquived_at'] = datetime.now().isoformat()
+        return db.update_document(doc)
+    # Delete User
+    def delete(self, doc):
+        if not db.collection(self.collection).has(doc):
+            return False
+       return db.delete_document(doc)
+
 
 class Blog:
     collection = 'categories'
