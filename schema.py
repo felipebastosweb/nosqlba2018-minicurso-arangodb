@@ -1,4 +1,4 @@
-
+from time import datetime
 from arango import ArangoClient
 
 client = ArangoClient(
@@ -27,7 +27,7 @@ if not sys_db.has_database('nosqlba2018'):
 db = client.db('nosqlba2018', username='root', password='nosqlba2018')
 
 collections = [
-    'users',
+    'accounts',
     'blogs',
     'categories',
     'posts',
@@ -40,12 +40,46 @@ for collection in collections:
         db.create_collection(collection)
 
 
-class User:
-    collection = 'users'
+class Account:
+    collection = 'accounts'
     def __init__(self, db):
         self.db = db
+    def find(self, username):
+        return db.collection(self.collection).get({'username': username})
+    # User Sign In
     def login(self, username, password):
-        pass
+        account = self.find(username)
+        if not account:
+            return False
+        return account.password == password
+    # User Logout
+    def logout(self, doc):
+        if not db.collection(self.collection).has(doc):
+            return False
+        account = db.collection(self.collection).get({'_key': _key})
+    # Insert User
+    def signup(self, username, password):
+        if db.collection(self.collection).has(doc):
+            return False
+        doc = dict(username = username, password = password, created_at = datetime.now().isoformat())
+        return db.insert_document(doc)
+    # Update User
+    def update(self, doc, **kwargs):
+        password = kwargs.get('password')
+        doc['password'] = password if password
+        doc['updated_at'] = datetime.now().isoformat()
+        return db.update_document(doc)
+    # Arquive User
+    def arquive(self, doc):
+        password = kwargs.get('password')
+        doc['arquived'] = True
+        doc['arquived_at'] = datetime.now().isoformat()
+        return db.update_document(doc)
+    # Delete User
+    def delete(self):
+        if not db.collection(self.collection).has(doc):
+            return False
+       return db.delete_document(doc)
 
 class Blog:
     collection = 'categories'
